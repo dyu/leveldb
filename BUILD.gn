@@ -90,7 +90,7 @@ static_library("leveldb") {
   ]
   
   include_dirs = [ "." ]
-  defines = [ "SNAPPY=1" ]
+  defines = [ "HAVE_SNAPPY=1" ]
   
   if (is_win) {
     defines += [
@@ -117,9 +117,6 @@ static_library("leveldb") {
 
   public_configs = [ ":leveldb_config" ]
   deps = [ "../snappy:snappy" ]
-  if (is_win) {
-    deps += [ "../libuv:libuv" ]
-  }
 }
 
 #executable("test_leveldb") {
