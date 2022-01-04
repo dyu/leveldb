@@ -90,7 +90,10 @@ static_library("leveldb") {
   ]
   
   include_dirs = [ "." ]
-  defines = [ "HAVE_SNAPPY=1" ]
+  defines = [
+    "HAVE_CRC32C=1",
+    "HAVE_SNAPPY=1",
+  ]
   
   if (is_win) {
     defines += [
@@ -116,7 +119,10 @@ static_library("leveldb") {
   }
 
   public_configs = [ ":leveldb_config" ]
-  deps = [ "../snappy:snappy" ]
+  deps = [
+    "../crc32c:crc32c",
+    "../snappy:snappy",
+  ]
 }
 
 #executable("test_leveldb") {
