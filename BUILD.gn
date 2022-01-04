@@ -87,10 +87,12 @@ static_library("leveldb") {
     "util/random.h",
     "util/status.cc",
     "port/port_stdcxx.h",
+    "config-include/port/port_config.h",
   ]
   
-  include_dirs = [ "." ]
+  include_dirs = [ ".", "config-include" ] # private
   defines = [
+    "LEVELDB_HAS_PORT_CONFIG_H=1",
     "HAVE_CRC32C=1",
     "HAVE_SNAPPY=1",
   ]
