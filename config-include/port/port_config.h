@@ -6,7 +6,7 @@
 #define STORAGE_LEVELDB_PORT_PORT_CONFIG_H_
 
 //@dyu
-#if !defined(__APPLE__) && !defined(WIN32)
+#if !defined(__APPLE__) && !defined(_WIN32)
 // Define to 1 if you have a definition for fdatasync() in <unistd.h>.
 #define HAVE_FDATASYNC 1
 #else
@@ -20,7 +20,7 @@
 #define HAVE_FULLFSYNC 0
 #endif
 
-#if !defined(WIN32)
+#if !defined(_WIN32)
 // Define to 1 if you have a definition for O_CLOEXEC in <fcntl.h>.
 #define HAVE_O_CLOEXEC 1
 #else
