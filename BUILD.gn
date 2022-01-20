@@ -5,6 +5,31 @@ config("leveldb_config") {
   include_dirs = [ "include" ]
 }
 
+config("leveldb_local_config") {
+  include_dirs = [ ".", "config-include" ]
+  defines = [
+    "LEVELDB_HAS_PORT_CONFIG_H=1",
+    "HAVE_CRC32C=1",
+    "HAVE_SNAPPY=1",
+  ]
+  
+  if (is_win) {
+    defines += [
+      "LEVELDB_PLATFORM_WINDOWS=1",
+      "_UNICODE",
+      "UNICODE",
+    ]
+  } else {
+    defines += [
+      "LEVELDB_PLATFORM_POSIX=1",
+    ]
+    cflags = [
+      "-fno-builtin-memcmp",
+      #"-fPIC",
+    ]
+  }
+}
+
 static_library("leveldb") {
   sources = [
     "db/builder.cc",
@@ -90,36 +115,18 @@ static_library("leveldb") {
     "config-include/port/port_config.h",
   ]
   
-  include_dirs = [ ".", "config-include" ] # private
-  defines = [
-    "LEVELDB_HAS_PORT_CONFIG_H=1",
-    "HAVE_CRC32C=1",
-    "HAVE_SNAPPY=1",
-  ]
-  
   if (is_win) {
-    defines += [
-      "LEVELDB_PLATFORM_WINDOWS=1",
-      "_UNICODE",
-      "UNICODE",
-    ]
     sources += [
       "util/env_windows.cc",
       "util/windows_logger.h",
     ]
   } else {
-    defines += [
-      "LEVELDB_PLATFORM_POSIX=1",
-    ]
     sources += [
       "util/env_posix.cc",
     ]
-    cflags = [
-      "-fno-builtin-memcmp",
-      #"-fPIC",
-    ]
   }
 
+  configs += [ ":leveldb_local_config" ]
   public_configs = [ ":leveldb_config" ]
   deps = [
     "../crc32c:crc32c",
