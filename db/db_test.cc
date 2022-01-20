@@ -9,7 +9,9 @@
 #include <string>
 
 #include "gtest/gtest.h"
+#if !defined(TEST_SKIP_BENCHMARK)
 #include "benchmark/benchmark.h"
+#endif
 #include "db/db_impl.h"
 #include "db/filename.h"
 #include "db/version_set.h"
@@ -2295,6 +2297,7 @@ TEST_F(DBTest, Randomized) {
   } while (ChangeOptions());
 }
 
+#if !defined(TEST_SKIP_BENCHMARK)
 std::string MakeKey(unsigned int num) {
   char buf[30];
   std::snprintf(buf, sizeof(buf), "%016u", num);
@@ -2357,10 +2360,13 @@ static void BM_LogAndApply(benchmark::State& state) {
 }
 
 BENCHMARK(BM_LogAndApply)->Arg(1)->Arg(100)->Arg(10000)->Arg(100000);
+#endif
 }  // namespace leveldb
 
 int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);
+  #if !defined(TEST_SKIP_BENCHMARK)
   benchmark::RunSpecifiedBenchmarks();
+  #endif
   return RUN_ALL_TESTS();
 }
