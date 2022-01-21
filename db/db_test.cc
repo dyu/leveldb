@@ -2095,6 +2095,25 @@ class ModelDB : public DB {
     handler.map_ = &map_;
     return batch->Iterate(&handler);
   }
+  Status WriteUpdates(const WriteOptions& options, WriteBatch* batch,
+      const std::function<void(const Slice&, const Slice&)> delegate) override {
+    class Handler : public WriteBatch::Handler {
+     public:
+      KVMap* map_;
+      std::function<void(const Slice&, const Slice&)> delegate_;
+      void Put(const Slice& key, const Slice& value) override {
+        (*map_)[key.ToString()] = value.ToString();
+        delegate_(key, value);
+      }
+      void Delete(const Slice& key) override {
+        map_->erase(key.ToString());
+      }
+    };
+    Handler handler;
+    handler.map_ = &map_;
+    handler.delegate_ = delegate;
+    return batch->Iterate(&handler);
+  }
 
   bool GetProperty(const Slice& property, std::string* value) override {
     return false;

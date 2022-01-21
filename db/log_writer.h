@@ -36,17 +36,20 @@ class Writer {
 
   Status AddRecord(const Slice& slice);
 
+  WritableFile* dest_;
+  uint64_t dest_length_;
+  int block_offset_;  // Current offset in block
+
  private:
   Status EmitPhysicalRecord(RecordType type, const char* ptr, size_t length);
-
-  WritableFile* dest_;
-  int block_offset_;  // Current offset in block
 
   // crc32c values for all supported record types.  These are
   // pre-computed to reduce the overhead of computing the crc of the
   // record type stored in the header.
   uint32_t type_crc_[kMaxRecordType + 1];
 };
+
+using SimpleWriter = Writer;
 
 }  // namespace log
 }  // namespace leveldb

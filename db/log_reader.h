@@ -47,6 +47,10 @@ class Reader {
   Reader& operator=(const Reader&) = delete;
 
   ~Reader();
+  
+  // Resets the file cursor to the beginning of the file and
+  // sets the initial_offset_ to the offset provided.
+  Status Reset(uint64_t offset);
 
   // Read the next record into *record.  Returns true if read
   // successfully, false if we hit end of the input.  May use
@@ -98,7 +102,7 @@ class Reader {
   uint64_t end_of_buffer_offset_;
 
   // Offset at which to start looking for the first record to return
-  uint64_t const initial_offset_;
+  uint64_t initial_offset_;
 
   // True if we are resynchronizing after a seek (initial_offset_ > 0). In
   // particular, a run of kMiddleType and kLastType records can be silently

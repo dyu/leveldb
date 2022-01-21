@@ -20,12 +20,12 @@ static void InitTypeCrc(uint32_t* type_crc) {
   }
 }
 
-Writer::Writer(WritableFile* dest) : dest_(dest), block_offset_(0) {
+Writer::Writer(WritableFile* dest) : dest_(dest), dest_length_(0), block_offset_(0) {
   InitTypeCrc(type_crc_);
 }
 
 Writer::Writer(WritableFile* dest, uint64_t dest_length)
-    : dest_(dest), block_offset_(dest_length % kBlockSize) {
+    : dest_(dest), dest_length_(dest_length), block_offset_(dest_length % kBlockSize) {
   InitTypeCrc(type_crc_);
 }
 
@@ -34,6 +34,7 @@ Writer::~Writer() = default;
 Status Writer::AddRecord(const Slice& slice) {
   const char* ptr = slice.data();
   size_t left = slice.size();
+  auto prev_offset = block_offset_;
 
   // Fragment the record if necessary and emit it.  Note that if slice
   // is empty, we still want to iterate once to emit a single
@@ -76,6 +77,7 @@ Status Writer::AddRecord(const Slice& slice) {
     left -= fragment_length;
     begin = false;
   } while (s.ok() && left > 0);
+  dest_length_ += (block_offset_ - prev_offset);
   return s;
 }
 

@@ -246,6 +246,19 @@ class LEVELDB_EXPORT SequentialFile {
   //
   // REQUIRES: External synchronization
   virtual Status Skip(uint64_t n) = 0;
+
+  // Moves to the start of the file.
+  //
+  // REQUIRES: External synchronization
+  virtual Status SeekStart() = 0;
+  
+  // Moves to the end of the file.
+  //
+  // REQUIRES: External synchronization
+  virtual Status SeekEnd() = 0;
+
+  // Similar to Skip but is absolute (Skip is relative to current position).
+  virtual Status Seek(uint64_t n) = 0;
 };
 
 // A file abstraction for randomly reading the contents of a file.

@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <cstdio>
+#include <functional>
 
 #include "leveldb/export.h"
 #include "leveldb/iterator.h"
@@ -76,6 +77,12 @@ class LEVELDB_EXPORT DB {
   // Returns OK on success, non-OK on failure.
   // Note: consider setting options.sync = true.
   virtual Status Write(const WriteOptions& options, WriteBatch* updates) = 0;
+
+  // Apply the specified updates to the database.
+  // Returns OK on success, non-OK on failure.
+  // Note: consider setting options.sync = true.
+  virtual Status WriteUpdates(const WriteOptions& options, WriteBatch* updates,
+      const std::function<void(const Slice&, const Slice&)> handler) = 0;
 
   // If the database contains an entry for "key" store the
   // corresponding value in *value and return OK.

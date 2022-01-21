@@ -1198,6 +1198,11 @@ Status DBImpl::Delete(const WriteOptions& options, const Slice& key) {
 }
 
 Status DBImpl::Write(const WriteOptions& options, WriteBatch* updates) {
+  return WriteUpdates(options, updates, nullptr);
+}
+
+Status DBImpl::WriteUpdates(const WriteOptions& options, WriteBatch* updates,
+    const std::function<void(const Slice&, const Slice&)> handler) {
   Writer w(&mutex_);
   w.batch = updates;
   w.sync = options.sync;
@@ -1236,7 +1241,8 @@ Status DBImpl::Write(const WriteOptions& options, WriteBatch* updates) {
         }
       }
       if (status.ok()) {
-        status = WriteBatchInternal::InsertInto(write_batch, mem_);
+        status = handler == nullptr ? WriteBatchInternal::InsertInto(updates, mem_) :
+            WriteBatchInternal::InsertWithHandlerInto(updates, mem_, handler);
       }
       mutex_.Lock();
       if (sync_error) {

@@ -193,6 +193,41 @@ class WindowsSequentialFile : public SequentialFile {
     return Status::OK();
   }
 
+  Status SeekStart() override {
+    LARGE_INTEGER distance;
+    distance.QuadPart = 0;
+    if (!::SetFilePointerEx(handle_.get(), distance, nullptr, FILE_BEGIN)) {
+      return WindowsError(filename_, ::GetLastError());
+    }
+    return Status::OK();
+  }
+
+  Status SeekEnd() override {
+    LARGE_INTEGER distance;
+    distance.QuadPart = 0;
+    if (!::SetFilePointerEx(handle_.get(), distance, nullptr, FILE_END)) {
+      return WindowsError(filename_, ::GetLastError());
+    }
+    return Status::OK();
+  }
+
+  Status Seek(uint64_t n) override {
+    // TODO single syscall
+    LARGE_INTEGER distance;
+    // seek to start
+    distance.QuadPart = 0;
+    if (!::SetFilePointerEx(handle_.get(), distance, nullptr, FILE_BEGIN)) {
+      return WindowsError(filename_, ::GetLastError());
+    }
+    if (n == 0) return Status::OK();
+    // seek to offset
+    distance.QuadPart = n;
+    if (!::SetFilePointerEx(handle_.get(), distance, nullptr, FILE_CURRENT)) {
+      return WindowsError(filename_, ::GetLastError());
+    }
+    return Status::OK();
+  }
+
  private:
   const ScopedHandle handle_;
   const std::string filename_;
