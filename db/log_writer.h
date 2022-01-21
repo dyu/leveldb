@@ -49,6 +49,7 @@ class Writer {
   uint32_t type_crc_[kMaxRecordType + 1];
 };
 
+// alias
 using SimpleWriter = Writer;
 
 }  // namespace log

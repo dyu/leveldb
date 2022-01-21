@@ -110,6 +110,9 @@ class Reader {
   bool resyncing_;
 };
 
+// alias
+using SimpleReader = Reader;
+
 }  // namespace log
 }  // namespace leveldb
 
