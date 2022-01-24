@@ -442,6 +442,23 @@ class WindowsEnv : public Env {
     return Status::OK();
   }
 
+  Status NewSharedSequentialFile(const std::string& filename,
+                                 SequentialFile** result) override {
+    *result = nullptr;
+    DWORD desired_access = GENERIC_READ;
+    DWORD share_mode = FILE_SHARE_READ | FILE_SHARE_WRITE;
+    ScopedHandle handle = ::CreateFileA(
+        filename.c_str(), desired_access, share_mode,
+        /*lpSecurityAttributes=*/nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL,
+        /*hTemplateFile=*/nullptr);
+    if (!handle.is_valid()) {
+      return WindowsError(filename, ::GetLastError());
+    }
+
+    *result = new WindowsSequentialFile(filename, std::move(handle));
+    return Status::OK();
+  }
+
   Status NewRandomAccessFile(const std::string& filename,
                              RandomAccessFile** result) override {
     *result = nullptr;
@@ -510,6 +527,23 @@ class WindowsEnv : public Env {
                            WritableFile** result) override {
     DWORD desired_access = FILE_APPEND_DATA;
     DWORD share_mode = 0;  // Exclusive access.
+    ScopedHandle handle = ::CreateFileA(
+        filename.c_str(), desired_access, share_mode,
+        /*lpSecurityAttributes=*/nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL,
+        /*hTemplateFile=*/nullptr);
+    if (!handle.is_valid()) {
+      *result = nullptr;
+      return WindowsError(filename, ::GetLastError());
+    }
+
+    *result = new WindowsWritableFile(filename, std::move(handle));
+    return Status::OK();
+  }
+
+  Status NewSharedAppendableFile(const std::string& filename,
+                                 WritableFile** result) override {
+    DWORD desired_access = FILE_APPEND_DATA;
+    DWORD share_mode = FILE_SHARE_READ;  // Exclusive write access, allow readers.
     ScopedHandle handle = ::CreateFileA(
         filename.c_str(), desired_access, share_mode,
         /*lpSecurityAttributes=*/nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL,

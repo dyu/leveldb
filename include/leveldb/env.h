@@ -74,6 +74,10 @@ class LEVELDB_EXPORT Env {
   virtual Status NewSequentialFile(const std::string& fname,
                                    SequentialFile** result) = 0;
 
+  // Same as above but opens a file that has been opend by #NewSharedAppendableFile
+  virtual Status NewSharedSequentialFile(const std::string& fname,
+                                         SequentialFile** result) = 0;
+
   // Create an object supporting random-access reads from the file with the
   // specified name.  On success, stores a pointer to the new file in
   // *result and returns OK.  On failure stores nullptr in *result and
@@ -109,6 +113,10 @@ class LEVELDB_EXPORT Env {
   // an Env that does not support appending.
   virtual Status NewAppendableFile(const std::string& fname,
                                    WritableFile** result);
+
+  // Same as above but allows read access on the file.
+  virtual Status NewSharedAppendableFile(const std::string& fname,
+                                         WritableFile** result);
 
   // Returns true iff the named file exists.
   virtual bool FileExists(const std::string& fname) = 0;
@@ -358,6 +366,9 @@ class LEVELDB_EXPORT EnvWrapper : public Env {
   Status NewSequentialFile(const std::string& f, SequentialFile** r) override {
     return target_->NewSequentialFile(f, r);
   }
+  Status NewSharedSequentialFile(const std::string& f, SequentialFile** r) override {
+    return target_->NewSharedSequentialFile(f, r);
+  }
   Status NewRandomAccessFile(const std::string& f,
                              RandomAccessFile** r) override {
     return target_->NewRandomAccessFile(f, r);
@@ -367,6 +378,9 @@ class LEVELDB_EXPORT EnvWrapper : public Env {
   }
   Status NewAppendableFile(const std::string& f, WritableFile** r) override {
     return target_->NewAppendableFile(f, r);
+  }
+  Status NewSharedAppendableFile(const std::string& f, WritableFile** r) override {
+    return target_->NewSharedAppendableFile(f, r);
   }
   bool FileExists(const std::string& f) override {
     return target_->FileExists(f);

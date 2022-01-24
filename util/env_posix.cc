@@ -555,6 +555,11 @@ class PosixEnv : public Env {
     return Status::OK();
   }
 
+  Status NewSharedSequentialFile(const std::string& filename,
+                                 SequentialFile** result) override {
+    return NewSequentialFile(filename, result);
+  }
+
   Status NewRandomAccessFile(const std::string& filename,
                              RandomAccessFile** result) override {
     *result = nullptr;
@@ -612,6 +617,11 @@ class PosixEnv : public Env {
 
     *result = new PosixWritableFile(filename, fd);
     return Status::OK();
+  }
+
+  Status NewSharedAppendableFile(const std::string& filename,
+                                 WritableFile** result) override {
+    return NewAppendableFile(filename, result);
   }
 
   bool FileExists(const std::string& filename) override {

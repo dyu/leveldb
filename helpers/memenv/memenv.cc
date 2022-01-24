@@ -259,6 +259,11 @@ class InMemoryEnv : public EnvWrapper {
     return Status::OK();
   }
 
+  Status NewSharedSequentialFile(const std::string& fname,
+                                 SequentialFile** result) override {
+    return NewSequentialFile(fname, result);
+  }
+
   Status NewRandomAccessFile(const std::string& fname,
                              RandomAccessFile** result) override {
     MutexLock lock(&mutex_);
@@ -302,6 +307,11 @@ class InMemoryEnv : public EnvWrapper {
     }
     *result = new WritableFileImpl(file);
     return Status::OK();
+  }
+
+  Status NewSharedAppendableFile(const std::string& fname,
+                                 WritableFile** result) override {
+    return NewAppendableFile(fname, result);
   }
 
   bool FileExists(const std::string& fname) override {

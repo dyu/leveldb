@@ -74,6 +74,15 @@ class ErrorEnv : public EnvWrapper {
     }
     return target()->NewAppendableFile(fname, result);
   }
+  Status NewSharedAppendableFile(const std::string& fname,
+                                 WritableFile** result) override {
+    if (writable_file_error_) {
+      ++num_writable_file_errors_;
+      *result = nullptr;
+      return Status::IOError(fname, "fake error");
+    }
+    return target()->NewSharedAppendableFile(fname, result);
+  }
 };
 
 }  // namespace test
